@@ -7,6 +7,9 @@ import SearchPage from "./pages/SearchPage";
 import ItemDetailPage from "./pages/ItemDetailPage";
 import CartPage from "./pages/CartPage";
 import LoginPage from "./pages/LoginPage";
+import PurchasesPage from "./pages/PurchasesPage";
+import InvoicePage from "./pages/InvoicePage";
+import SettingsPage from "./pages/SettingsPage";
 import { useAuthStore } from "./store/useAuthStore";
 import { useCartStore } from "./store/useCartStore";
 
@@ -32,6 +35,9 @@ export default function App() {
           <Route path="/items/:id" element={<ItemDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/purchases" element={<PurchasesPage />} />
+          <Route path="/purchases/:id" element={<InvoicePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       </Box>
       <Box

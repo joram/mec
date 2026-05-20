@@ -65,6 +65,44 @@ class UserOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ── Invoices ─────────────────────────────────────────────────────────────────
+
+class InvoiceItemOut(BaseModel):
+    id: UUID
+    item_id: Optional[UUID]
+    product_code: str
+    name: str
+    price: float
+    quantity: int
+    primary_image_id: Optional[UUID]
+
+    model_config = {"from_attributes": True}
+
+
+class InvoiceSummary(BaseModel):
+    id: UUID
+    created_at: Any
+    status: str
+    total: float
+    item_count: int
+
+    model_config = {"from_attributes": True}
+
+
+class InvoiceDetail(BaseModel):
+    id: UUID
+    created_at: Any
+    status: str
+    subtotal: float
+    tax: float
+    shipping: float
+    total: float
+    shipping_address: Dict[str, Any]
+    line_items: List[InvoiceItemOut]
+
+    model_config = {"from_attributes": True}
+
+
 # ── Cart ─────────────────────────────────────────────────────────────────────
 
 class CartItemAdd(BaseModel):

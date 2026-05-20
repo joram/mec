@@ -53,6 +53,40 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     cart_items = relationship("CartItem", back_populates="user", cascade="all, delete-orphan")
+    invoices = relationship("Invoice", back_populates="user", cascade="all, delete-orphan")
+
+
+class Invoice(Base):
+    __tablename__ = "invoices"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    status = Column(String(32), default="completed")  # completed | processing | shipped | cancelled
+    subtotal = Column(Float, nullable=False)
+    tax = Column(Float, default=0.0)
+    shipping = Column(Float, default=0.0)
+    total = Column(Float, nullable=False)
+    shipping_address = Column(JSONB, default=dict)
+
+    user = relationship("User", back_populates="invoices")
+    line_items = relationship("InvoiceItem", back_populates="invoice", cascade="all, delete-orphan")
+
+
+class InvoiceItem(Base):
+    __tablename__ = "invoice_items"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    invoice_id = Column(UUID(as_uuid=True), ForeignKey("invoices.id"), nullable=False)
+    item_id = Column(UUID(as_uuid=True), ForeignKey("items.id"), nullable=True)
+    product_code = Column(String(64), nullable=False)
+    name = Column(String(256), nullable=False)
+    price = Column(Float, nullable=False)
+    quantity = Column(Integer, default=1)
+    primary_image_id = Column(UUID(as_uuid=True), nullable=True)
+
+    invoice = relationship("Invoice", back_populates="line_items")
+    item = relationship("Item")
 
 
 class CartItem(Base):

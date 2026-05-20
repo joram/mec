@@ -68,6 +68,36 @@ export interface CategoryNode {
   children: CategoryNode[];
 }
 
+export interface InvoiceLineItem {
+  id: string;
+  item_id: string | null;
+  product_code: string;
+  name: string;
+  price: number;
+  quantity: number;
+  primary_image_id: string | null;
+}
+
+export interface InvoiceSummary {
+  id: string;
+  created_at: string;
+  status: string;
+  total: number;
+  item_count: number;
+}
+
+export interface InvoiceDetail {
+  id: string;
+  created_at: string;
+  status: string;
+  subtotal: number;
+  tax: number;
+  shipping: number;
+  total: number;
+  shipping_address: Record<string, string>;
+  line_items: InvoiceLineItem[];
+}
+
 // ── Items API ─────────────────────────────────────────────────────────────────
 
 export const itemsApi = {
@@ -137,6 +167,17 @@ export const authApi = {
   logout: () => localStorage.removeItem("credentials"),
 
   me: () => apiClient.get<User>("/auth/me").then((r) => r.data),
+};
+
+// ── Invoices API ──────────────────────────────────────────────────────────────
+
+export const invoicesApi = {
+  list: () => apiClient.get<InvoiceSummary[]>("/invoices").then((r) => r.data),
+
+  get: (id: string) => apiClient.get<InvoiceDetail>(`/invoices/${id}`).then((r) => r.data),
+
+  seedFake: (count = 5) =>
+    apiClient.post<InvoiceSummary[]>(`/invoices/seed-fake?count=${count}`).then((r) => r.data),
 };
 
 // ── Cart API ──────────────────────────────────────────────────────────────────

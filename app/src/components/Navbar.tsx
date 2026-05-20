@@ -11,6 +11,8 @@ import {
   Avatar,
   Menu,
   MenuItem,
+  ListItemIcon,
+  Divider,
   Drawer,
   useMediaQuery,
   useTheme,
@@ -19,6 +21,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import MenuIcon from "@mui/icons-material/Menu";
 import PersonIcon from "@mui/icons-material/Person";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+import SettingsIcon from "@mui/icons-material/Settings";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { styled, alpha } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
@@ -151,19 +156,31 @@ export default function Navbar() {
                   sx={{ width: 30, height: 30, border: "2px solid rgba(255,255,255,0.4)" }}
                 />
               </IconButton>
-              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
-                <Box sx={{ px: 2, py: 1.5, display: "flex", alignItems: "center", gap: 1.5, minWidth: 200 }}>
-                  <Avatar
-                    src={gravatarUrl(user.email, 80)}
-                    alt={user.username}
-                    sx={{ width: 40, height: 40 }}
-                  />
+              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}
+                PaperProps={{ sx: { minWidth: 220 } }}
+              >
+                {/* User identity header */}
+                <Box sx={{ px: 2, py: 1.5, display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <Avatar src={gravatarUrl(user.email, 80)} alt={user.username} sx={{ width: 40, height: 40 }} />
                   <Box>
                     <Typography variant="body2" fontWeight={600}>{user.username}</Typography>
                     <Typography variant="caption" color="text.secondary">{user.email}</Typography>
                   </Box>
                 </Box>
-                <MenuItem onClick={handleLogout}>Sign out</MenuItem>
+                <Divider />
+                <MenuItem onClick={() => { handleCloseMenu(); navigate("/purchases"); }}>
+                  <ListItemIcon><ReceiptLongIcon fontSize="small" /></ListItemIcon>
+                  Purchases
+                </MenuItem>
+                <MenuItem onClick={() => { handleCloseMenu(); navigate("/settings"); }}>
+                  <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
+                  Settings
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
+                  <ListItemIcon><LogoutIcon fontSize="small" color="error" /></ListItemIcon>
+                  Sign out
+                </MenuItem>
               </Menu>
             </>
           ) : (
