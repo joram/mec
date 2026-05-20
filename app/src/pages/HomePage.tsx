@@ -18,7 +18,7 @@ import { itemsApi, ItemSummary, ItemsPage } from "../api/client";
 import ItemCard from "../components/ItemCard";
 import CategorySidebar from "../components/CategorySidebar";
 
-const PAGE_SIZE = 24;
+const PAGE_SIZE = 36;
 
 export default function HomePage() {
   const theme = useTheme();
@@ -112,17 +112,17 @@ export default function HomePage() {
 
         {/* Grid */}
         {loading ? (
-          <Grid container spacing={2}>
+          <Grid container spacing={1.5}>
             {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-              <Grid item xs={6} sm={4} md={3} lg={3} key={i}>
-                <Skeleton variant="rectangular" height={280} sx={{ borderRadius: 1 }} />
+              <Grid item xs={6} sm={4} md={3} lg={2} xl={2} key={i}>
+                <Skeleton variant="rectangular" height={260} sx={{ borderRadius: 1 }} />
               </Grid>
             ))}
           </Grid>
         ) : data && data.items.length > 0 ? (
-          <Grid container spacing={2}>
+          <Grid container spacing={1.5}>
             {data.items.map((item) => (
-              <Grid item xs={6} sm={4} md={3} lg={3} key={item.id}>
+              <Grid item xs={6} sm={4} md={3} lg={2} xl={2} key={item.id}>
                 <ItemCard item={item} />
               </Grid>
             ))}
