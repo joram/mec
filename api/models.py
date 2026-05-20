@@ -3,9 +3,9 @@ from datetime import datetime
 
 from sqlalchemy import (
     Column, String, Text, Float, Integer, Boolean,
-    DateTime, ForeignKey, LargeBinary, JSON
+    DateTime, ForeignKey, LargeBinary
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -18,9 +18,9 @@ class Item(Base):
     product_code = Column(String(64), unique=True, index=True, nullable=False)
     name = Column(String(256), nullable=False)
     description = Column(Text, default="")
-    categories = Column(JSON, default=list)
-    tech_specs = Column(JSON, default=dict)
-    img_urls = Column(JSON, default=dict)
+    categories = Column(JSONB, default=list)
+    tech_specs = Column(JSONB, default=dict)
+    img_urls = Column(JSONB, default=dict)
     price = Column(Float, nullable=True)
     source_url = Column(Text, nullable=True)
 
