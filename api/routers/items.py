@@ -88,6 +88,44 @@ def list_categories(db: Session = Depends(get_db)):
     return sorted(categories)
 
 
+# Navigation-only prefixes that appear at the start of every MEC category path
+_NAV_PREFIXES = {"Home", "All"}
+
+
+@router.get("/category-tree")
+def category_tree(db: Session = Depends(get_db)):
+    """
+    Returns the category hierarchy as a nested list of nodes:
+      [{ "name": str, "children": [...] }]
+
+    Leading navigation-only entries ("Home", "All") are stripped from each path
+    so the tree roots are the real top-level categories.
+    """
+    rows = db.query(models.Item.categories).all()
+
+    tree: dict = {}
+    for (cats,) in rows:
+        if not cats:
+            continue
+        # Strip leading nav-only segments
+        trimmed = [c for c in cats if c not in _NAV_PREFIXES]
+        if not trimmed:
+            continue
+        node = tree
+        for cat in trimmed:
+            if cat not in node:
+                node[cat] = {}
+            node = node[cat]
+
+    def to_nodes(d: dict) -> list:
+        return sorted(
+            [{"name": k, "children": to_nodes(v)} for k, v in d.items()],
+            key=lambda n: n["name"],
+        )
+
+    return to_nodes(tree)
+
+
 @router.get("/{item_id}", response_model=schemas.ItemDetail)
 def get_item(item_id: UUID, db: Session = Depends(get_db)):
     item = db.query(models.Item).filter(models.Item.id == item_id).first()

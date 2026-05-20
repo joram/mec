@@ -63,6 +63,11 @@ export interface CartOut {
   total_items: number;
 }
 
+export interface CategoryNode {
+  name: string;
+  children: CategoryNode[];
+}
+
 // ── Items API ─────────────────────────────────────────────────────────────────
 
 export const itemsApi = {
@@ -81,6 +86,9 @@ export const itemsApi = {
 
   categories: () =>
     apiClient.get<string[]>("/items/categories").then((r) => r.data),
+
+  categoryTree: () =>
+    apiClient.get<CategoryNode[]>("/items/category-tree").then((r) => r.data),
 
   imageUrl: (itemId: string, imageId: string) =>
     `${BASE}/items/${itemId}/images/${imageId}`,
