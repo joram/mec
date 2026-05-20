@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+
+# Node
+app/node_modules/
+app/dist/
+
+# Docker volumes / local DB data
+pgdata/
+
+# Editor
+.DS_Store
+*.swp
