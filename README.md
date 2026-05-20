@@ -1,6 +1,6 @@
 # MEC Store
 
-A full-stack MEC (Mountain Equipment Company) inspired store with:
+A full-stack MEC (My Equipment Closet) store with:
 
 - **FastAPI** backend (`./api`) — items, users, sessions, cart
 - **React + Material UI** frontend (`./app`) — MEC-styled

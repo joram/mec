@@ -50,11 +50,11 @@ export default function App() {
               MEC
             </Box>
             <Box sx={{ fontSize: "0.8rem", opacity: 0.75, mt: 0.5 }}>
-              Mountain Equipment Company
+              My Equipment Closet
             </Box>
           </Box>
           <Box sx={{ fontSize: "0.8rem", opacity: 0.7 }}>
-            © {new Date().getFullYear()} Mountain Equipment Company
+            © {new Date().getFullYear()} My Equipment Closet
           </Box>
         </Box>
       </Box>
