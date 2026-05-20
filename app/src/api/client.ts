@@ -71,9 +71,21 @@ export interface CategoryNode {
 // ── Items API ─────────────────────────────────────────────────────────────────
 
 export const itemsApi = {
-  list: (page = 1, pageSize = 24, category?: string) =>
+  list: (page = 1, pageSize = 24, path?: string[]) =>
     apiClient
-      .get<ItemsPage>("/items", { params: { page, page_size: pageSize, category } })
+      .get<ItemsPage>("/items", {
+        params: { page, page_size: pageSize, path },
+        // axios serialises arrays as path[]=X&path[]=Y by default;
+        // FastAPI reads repeated `path` params as List[str] correctly.
+        paramsSerializer: (p) => {
+          const q = new URLSearchParams();
+          Object.entries(p).forEach(([k, v]) => {
+            if (Array.isArray(v)) v.forEach((s) => q.append(k, s));
+            else if (v !== undefined && v !== null) q.append(k, String(v));
+          });
+          return q.toString();
+        },
+      })
       .then((r) => r.data),
 
   search: (q: string, page = 1, pageSize = 24) =>

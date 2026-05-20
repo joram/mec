@@ -14,29 +14,43 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import { itemsApi, CategoryNode } from "../api/client";
 
-interface TreeNodeProps {
-  node: CategoryNode;
-  depth: number;
-  selected: string | null;
-  onSelect: (cat: string) => void;
-  /** Nodes whose name matches an ancestor of `selected` start expanded */
-  initiallyOpen?: boolean;
+// Two paths are equal when every segment matches.
+function pathsEqual(a: string[] | null, b: string[] | null): boolean {
+  if (a === null && b === null) return true;
+  if (!a || !b || a.length !== b.length) return false;
+  return a.every((seg, i) => seg === b[i]);
 }
 
-function CategoryTreeNode({ node, depth, selected, onSelect, initiallyOpen = false }: TreeNodeProps) {
+// True if `selected` is this node or any descendant of it (used to auto-expand).
+function containsSelected(node: CategoryNode, nodePath: string[], selected: string[] | null): boolean {
+  if (!selected) return false;
+  if (pathsEqual(nodePath, selected)) return true;
+  return node.children.some((child) =>
+    containsSelected(child, [...nodePath, child.name], selected)
+  );
+}
+
+interface TreeNodeProps {
+  node: CategoryNode;
+  /** Full path from the tree root down to (and including) this node */
+  nodePath: string[];
+  depth: number;
+  selected: string[] | null;
+  onSelect: (path: string[]) => void;
+}
+
+function CategoryTreeNode({ node, nodePath, depth, selected, onSelect }: TreeNodeProps) {
   const hasChildren = node.children.length > 0;
-  const isSelected = selected === node.name;
+  const isSelected = pathsEqual(nodePath, selected);
 
-  // Auto-expand if this node or any descendant is selected
-  const [open, setOpen] = useState(() => initiallyOpen || isSelectedDescendant(node, selected));
+  const [open, setOpen] = useState(() => containsSelected(node, nodePath, selected));
 
-  // Re-check when selection changes
   useEffect(() => {
-    if (isSelectedDescendant(node, selected)) setOpen(true);
+    if (containsSelected(node, nodePath, selected)) setOpen(true);
   }, [selected]);
 
   const handleClick = () => {
-    onSelect(node.name);
+    onSelect(nodePath);
     if (hasChildren) setOpen((o) => !o);
   };
 
@@ -57,7 +71,6 @@ function CategoryTreeNode({ node, depth, selected, onSelect, initiallyOpen = fal
           "& .MuiListItemIcon-root": { minWidth: 20 },
         }}
       >
-        {/* Leaf dot / expand-collapse chevron */}
         <ListItemIcon>
           {hasChildren ? (
             open ? (
@@ -91,6 +104,7 @@ function CategoryTreeNode({ node, depth, selected, onSelect, initiallyOpen = fal
               <CategoryTreeNode
                 key={child.name}
                 node={child}
+                nodePath={[...nodePath, child.name]}
                 depth={depth + 1}
                 selected={selected}
                 onSelect={onSelect}
@@ -103,15 +117,9 @@ function CategoryTreeNode({ node, depth, selected, onSelect, initiallyOpen = fal
   );
 }
 
-function isSelectedDescendant(node: CategoryNode, selected: string | null): boolean {
-  if (!selected) return false;
-  if (node.name === selected) return true;
-  return node.children.some((c) => isSelectedDescendant(c, selected));
-}
-
 interface Props {
-  selected: string | null;
-  onSelect: (cat: string | null) => void;
+  selected: string[] | null;
+  onSelect: (path: string[] | null) => void;
 }
 
 export default function CategorySidebar({ selected, onSelect }: Props) {
@@ -135,7 +143,6 @@ export default function CategorySidebar({ selected, onSelect }: Props) {
       </Typography>
 
       <List dense disablePadding>
-        {/* All Products reset */}
         <ListItemButton
           selected={selected === null}
           onClick={() => onSelect(null)}
@@ -144,7 +151,11 @@ export default function CategorySidebar({ selected, onSelect }: Props) {
         >
           <ListItemText
             primary="All Products"
-            primaryTypographyProps={{ variant: "body2", fontWeight: selected === null ? 700 : 600, fontSize: "0.85rem" }}
+            primaryTypographyProps={{
+              variant: "body2",
+              fontWeight: selected === null ? 700 : 600,
+              fontSize: "0.85rem",
+            }}
           />
         </ListItemButton>
 
@@ -158,6 +169,7 @@ export default function CategorySidebar({ selected, onSelect }: Props) {
               <CategoryTreeNode
                 key={root.name}
                 node={root}
+                nodePath={[root.name]}
                 depth={0}
                 selected={selected}
                 onSelect={onSelect}

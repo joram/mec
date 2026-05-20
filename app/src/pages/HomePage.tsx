@@ -26,14 +26,14 @@ export default function HomePage() {
 
   const [data, setData] = useState<ItemsPage | null>(null);
   const [page, setPage] = useState(1);
-  const [category, setCategory] = useState<string | null>(null);
+  const [selectedPath, setSelectedPath] = useState<string[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
 
-  const load = useCallback(async (pg: number, cat: string | null) => {
+  const load = useCallback(async (pg: number, path: string[] | null) => {
     setLoading(true);
     try {
-      const result = await itemsApi.list(pg, PAGE_SIZE, cat ?? undefined);
+      const result = await itemsApi.list(pg, PAGE_SIZE, path ?? undefined);
       setData(result);
     } finally {
       setLoading(false);
@@ -41,17 +41,17 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    load(page, category);
-  }, [page, category, load]);
+    load(page, selectedPath);
+  }, [page, selectedPath, load]);
 
-  const handleCategoryChange = (cat: string | null) => {
-    setCategory(cat);
+  const handleCategoryChange = (path: string[] | null) => {
+    setSelectedPath(path);
     setPage(1);
     setFilterDrawerOpen(false);
   };
 
   const sidebar = (
-    <CategorySidebar selected={category} onSelect={handleCategoryChange} />
+    <CategorySidebar selected={selectedPath} onSelect={handleCategoryChange} />
   );
 
   return (
@@ -98,7 +98,7 @@ export default function HomePage() {
           )}
           <Box>
             <Typography variant="h5" fontWeight={700}>
-              {category ?? "All Products"}
+              {selectedPath ? selectedPath[selectedPath.length - 1] : "All Products"}
             </Typography>
             {data && (
               <Typography variant="body2" color="text.secondary">

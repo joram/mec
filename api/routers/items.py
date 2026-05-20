@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
@@ -36,12 +36,15 @@ def _item_to_summary(item: models.Item) -> schemas.ItemSummary:
 def list_items(
     page: int = Query(1, ge=1),
     page_size: int = Query(24, ge=1, le=100),
-    category: Optional[str] = Query(None),
+    path: List[str] = Query(default=[]),
     db: Session = Depends(get_db),
 ):
     q = db.query(models.Item)
-    if category:
-        q = q.filter(models.Item.categories.contains([category]))
+    if path:
+        # Filter using all path segments so duplicate-named nodes are unambiguous.
+        # JSONB @> checks set containment, so ["Footwear","Footwear accessories"]
+        # will NOT match items that only have ["Hiking footwear","Footwear accessories"].
+        q = q.filter(models.Item.categories.contains(path))
     total = q.count()
     items = q.offset((page - 1) * page_size).limit(page_size).all()
     return schemas.ItemsPage(
