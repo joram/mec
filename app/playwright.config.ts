@@ -16,8 +16,8 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'], video: 'on' },
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'], video: 'on' },
     },
   ],
 
