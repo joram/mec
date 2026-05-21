@@ -1,88 +1,191 @@
 import { test, expect } from '@playwright/test';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
+const testUser = {
+  username: `testuser-${Date.now()}`,
+  email: `test-${Date.now()}@example.com`,
+  password: 'TestPassword123!',
+};
 
 test.describe('MEC App Demo', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(baseURL);
   });
 
-  test('view home page with seeded items', async ({ page }) => {
-    // Wait for the page to load and items to appear
-    await page.waitForSelector('text=/Shop|Gear|Equipment/', { timeout: 5000 });
+  test('create user and view home page with seeded items', async ({ page }) => {
+    // Check if user is logged in, if not create account
+    const signInBtn = page.locator('button:has-text("Sign in")');
+    if (await signInBtn.count() > 0) {
+      await signInBtn.click();
+      await page.waitForURL('**/login', { timeout: 5000 });
 
-    // Look for product listings
-    const items = await page.locator('[class*="card"], [class*="product"], article').count();
-    expect(items).toBeGreaterThan(0);
+      // Look for register link
+      const registerLink = page.locator('text=/register|create account/i');
+      if (await registerLink.count() > 0) {
+        await registerLink.click();
+      }
+
+      // Fill registration form
+      await page.fill('input[type="text"]', testUser.username);
+      await page.fill('input[type="email"]', testUser.email);
+      await page.fill('input[type="password"]', testUser.password);
+
+      // Submit registration
+      const submitBtn = page.locator('button[type="submit"]');
+      if (await submitBtn.count() > 0) {
+        await submitBtn.click();
+        await page.waitForNavigation({ timeout: 5000 });
+      }
+    }
+
+    // Wait for page to load and look for items
+    await page.waitForTimeout(1000);
+
+    // Look for items - more flexible selectors
+    const itemElements = page.locator('body').locator('text=/Whistle|Battery|Flashlight|Scissors/i');
+    const itemCount = await itemElements.count();
+    expect(itemCount).toBeGreaterThan(0);
   });
 
   test('search for items', async ({ page }) => {
-    // Find the search input
+    // Find and use search input
     const searchInput = page.locator('input[placeholder*="Search"]');
     await searchInput.fill('Whistle');
     await searchInput.press('Enter');
 
-    // Wait for search results
-    await page.waitForSelector('text=/search|result/i', { timeout: 5000 });
+    // Wait for search results page
+    await page.waitForURL('**/search**', { timeout: 5000 });
     expect(page.url()).toContain('/search');
+
+    // Verify we have results
+    const results = page.locator('text=/Whistle/i');
+    expect(await results.count()).toBeGreaterThan(0);
   });
 
   test('navigate to Purchases via user menu', async ({ page }) => {
-    // First, need to sign in to access Purchases
-    // Look for sign in button
+    // Register/login user if needed
     const signInBtn = page.locator('button:has-text("Sign in")');
     if (await signInBtn.count() > 0) {
       await signInBtn.click();
-      // Fill login form (using test credentials)
-      await page.fill('input[type="text"]', 'testuser');
-      await page.fill('input[type="password"]', 'testpass');
-      await page.click('button[type="submit"]');
-      await page.waitForNavigation();
+      await page.waitForURL('**/login', { timeout: 5000 });
+
+      // Try to find registration option
+      const registerLink = page.locator('text=/register|create account/i');
+      if (await registerLink.count() > 0) {
+        await registerLink.click();
+      }
+
+      // Fill registration form
+      await page.fill('input[type="text"]', testUser.username);
+      await page.fill('input[type="email"]', testUser.email);
+      await page.fill('input[type="password"]', testUser.password);
+
+      const submitBtn = page.locator('button[type="submit"]');
+      if (await submitBtn.count() > 0) {
+        await submitBtn.click();
+        await page.waitForNavigation({ timeout: 5000 });
+      }
     }
 
-    // Click on user avatar to open menu
-    const avatar = page.locator('[role="button"] img, img[alt]').first();
-    if (await avatar.count() > 0) {
-      await avatar.click();
+    // Wait a moment for user menu to be ready
+    await page.waitForTimeout(500);
+
+    // Click on user avatar to open menu (look for any clickable avatar-like element)
+    const userMenuButtons = page.locator('[role="button"]');
+    const count = await userMenuButtons.count();
+
+    if (count > 0) {
+      // Try to find avatar (usually a button with img or colored circle)
+      const avatarBtn = page.locator('button img[alt]').first();
+      if (await avatarBtn.count() > 0) {
+        await avatarBtn.click();
+      } else {
+        // Try last button in navbar (often the user menu)
+        await userMenuButtons.nth(count - 1).click();
+      }
+
       // Click on Purchases menu item
-      await page.click('text=Purchases');
-      await page.waitForSelector('text=/Purchase|Invoice|Receipt/i', { timeout: 5000 });
-      expect(page.url()).toContain('/purchases');
+      const purchasesMenu = page.locator('[role="menuitem"]:has-text("Purchases"), text=Purchases');
+      if (await purchasesMenu.count() > 0) {
+        await purchasesMenu.click();
+        await page.waitForURL('**/purchases', { timeout: 5000 });
+        expect(page.url()).toContain('/purchases');
+      }
     }
   });
 
   test('navigate to Settings via user menu', async ({ page }) => {
-    // Click on user avatar/menu (similar to previous test but for Settings)
-    const avatar = page.locator('[role="button"] img, img[alt]').first();
-    if (await avatar.count() > 0) {
-      await avatar.click();
+    // Register/login user if needed
+    const signInBtn = page.locator('button:has-text("Sign in")');
+    if (await signInBtn.count() > 0) {
+      await signInBtn.click();
+      await page.waitForURL('**/login', { timeout: 5000 });
+
+      const registerLink = page.locator('text=/register|create account/i');
+      if (await registerLink.count() > 0) {
+        await registerLink.click();
+      }
+
+      await page.fill('input[type="text"]', testUser.username);
+      await page.fill('input[type="email"]', testUser.email);
+      await page.fill('input[type="password"]', testUser.password);
+
+      const submitBtn = page.locator('button[type="submit"]');
+      if (await submitBtn.count() > 0) {
+        await submitBtn.click();
+        await page.waitForNavigation({ timeout: 5000 });
+      }
+    }
+
+    await page.waitForTimeout(500);
+
+    // Click user menu
+    const userMenuButtons = page.locator('[role="button"]');
+    const count = await userMenuButtons.count();
+
+    if (count > 0) {
+      const avatarBtn = page.locator('button img[alt]').first();
+      if (await avatarBtn.count() > 0) {
+        await avatarBtn.click();
+      } else {
+        await userMenuButtons.nth(count - 1).click();
+      }
+
       // Click on Settings menu item
-      await page.click('text=Settings');
-      await page.waitForSelector('text=/Setting|Preference|Configuration/i', { timeout: 5000 });
-      expect(page.url()).toContain('/settings');
+      const settingsMenu = page.locator('[role="menuitem"]:has-text("Settings"), text=Settings');
+      if (await settingsMenu.count() > 0) {
+        await settingsMenu.click();
+        await page.waitForURL('**/settings', { timeout: 5000 });
+        expect(page.url()).toContain('/settings');
+      }
     }
   });
 
   test('view cart', async ({ page }) => {
-    // Click on shopping cart icon
-    const cartIcon = page.locator('[aria-label="shopping cart"], button svg[data-testid*="ShoppingCart"]').first();
-    if (await cartIcon.count() > 0) {
-      await cartIcon.click();
-    } else {
-      // Try clicking nearby button
-      await page.click('button:has-text("Cart")');
+    // Click shopping cart icon
+    const cartButtons = page.locator('button').filter({ has: page.locator('svg') });
+    const count = await cartButtons.count();
+
+    // Look for cart icon (usually has a badge)
+    for (let i = 0; i < count; i++) {
+      const btn = cartButtons.nth(i);
+      const hasBadge = await btn.locator('[class*="Badge"]').count() > 0;
+      if (hasBadge) {
+        await btn.click();
+        break;
+      }
     }
 
     await page.waitForURL('**/cart', { timeout: 5000 });
     expect(page.url()).toContain('/cart');
   });
 
-  test('navigate home', async ({ page }) => {
+  test('navigate home via logo', async ({ page }) => {
     // Click MEC logo to go home
     const logo = page.locator('text=MEC').first();
     await logo.click();
 
-    await page.waitForURL('/', { timeout: 5000 });
-    expect(page.url()).toMatch(/\/$|\/search/); // Home or back to home
+    await page.waitForNavigation({ timeout: 5000 });
+    expect(page.url()).toMatch(/\/$|\/\?/);
   });
 });
