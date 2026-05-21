@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "playwright test",
+    "test:demo": "playwright test tests/demo.spec.ts --headed"
   },
   "dependencies": {
     "@emotion/react": "^11.13.5",
@@ -21,6 +23,7 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.48.0",
     "@types/md5": "^2.3.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
