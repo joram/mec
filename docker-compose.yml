@@ -7,6 +7,7 @@ services:
       POSTGRES_PASSWORD: mec
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
     ports:
       - "5432:5432"
     healthcheck:

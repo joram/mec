@@ -144,6 +144,46 @@ def get_image(item_id: UUID, image_id: UUID, db: Session = Depends(get_db)):
         .filter(models.ItemImage.id == image_id, models.ItemImage.item_id == item_id)
         .first()
     )
-    if not image or not image.data:
+
+    # Blob already cached — serve immediately.
+    if image and image.data:
+        return Response(content=image.data, media_type=image.content_type)
+
+    # Determine the source URL: prefer the row's own url, fall back to
+    # img_urls on the parent item (covers the no-row-at-all edge case).
+    source_url: str | None = image.url if image else None
+    if not source_url:
+        item = db.query(models.Item).filter(models.Item.id == item_id).first()
+        if item and item.img_urls:
+            urls = item.img_urls.get("low") or item.img_urls.get("high") or []
+            source_url = urls[0] if urls else None
+
+    if not source_url:
         raise HTTPException(status_code=404, detail="Image not found")
-    return Response(content=image.data, media_type=image.content_type)
+
+    # Lazy-fetch from CDN and persist so subsequent requests are instant.
+    try:
+        import httpx
+        r = httpx.get(source_url, follow_redirects=True, timeout=15)
+        r.raise_for_status()
+        blob = r.content
+        content_type = r.headers.get("content-type", "image/jpeg").split(";")[0]
+    except Exception:
+        raise HTTPException(status_code=502, detail="Failed to fetch image from CDN")
+
+    if image:
+        image.data = blob
+        image.content_type = content_type
+    else:
+        db.add(models.ItemImage(
+            id=image_id,
+            item_id=item_id,
+            url=source_url,
+            data=blob,
+            content_type=content_type,
+            is_primary=True,
+            sort_order=0,
+        ))
+    db.commit()
+
+    return Response(content=blob, media_type=content_type)
