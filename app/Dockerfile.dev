@@ -1,0 +1,10 @@
+FROM node:20-alpine
+WORKDIR /app
+# npm ci is faster and more reliable in build environments than npm install:
+# it requires package-lock.json, does a clean install, and exits correctly.
+COPY package.json package-lock.json ./
+RUN npm ci
+# Source is mounted at runtime via docker-compose volumes; this COPY only
+# exists so the image is usable standalone (docker run without mounts).
+COPY . .
+CMD ["npm", "run", "dev"]
