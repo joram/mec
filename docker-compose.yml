@@ -29,20 +29,6 @@ services:
     volumes:
       - ./api:/app
 
-  seed:
-    build:
-      context: ./api
-      dockerfile: Dockerfile.seed
-    environment:
-      DATABASE_URL: postgresql://mec:mec@db:5432/mec
-    depends_on:
-      db:
-        condition: service_healthy
-      api:
-        condition: service_started
-    profiles:
-      - seed
-
   app:
     build:
       context: ./app
