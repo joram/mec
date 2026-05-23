@@ -24,11 +24,14 @@ import PersonIcon from "@mui/icons-material/Person";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { styled, alpha } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { useCartStore } from "../store/useCartStore";
 import { gravatarUrl } from "../utils/gravatar";
+import { useThemeMode } from "../context/ThemeContext";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -66,6 +69,7 @@ export default function Navbar() {
   const { cart } = useCartStore();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const { mode, toggleTheme } = useThemeMode();
 
   const [searchVal, setSearchVal] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -140,6 +144,10 @@ export default function Navbar() {
               </Button>
             </>
           )}
+
+          <IconButton color="inherit" onClick={toggleTheme} title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}>
+            {mode === "light" ? <Brightness4Icon /> : <Brightness7Icon />}
+          </IconButton>
 
           <IconButton color="inherit" onClick={() => navigate("/cart")}>
             <Badge badgeContent={cartCount} color="secondary">
