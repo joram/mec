@@ -44,7 +44,14 @@ RUN set -eux; \
     createdb -U "$POSTGRES_USER" "$POSTGRES_DB"; \
     psql  -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f /seed.sql; \
     \
-    # --- 5. stop and clean up (keep /seed.sql for root to delete below) ---
+    # --- 5. tune memory settings for constrained container environments ------
+    echo "shared_buffers = 32MB"       >> "$PGDATA/postgresql.conf"; \
+    echo "work_mem = 2MB"              >> "$PGDATA/postgresql.conf"; \
+    echo "maintenance_work_mem = 32MB" >> "$PGDATA/postgresql.conf"; \
+    echo "effective_cache_size = 64MB" >> "$PGDATA/postgresql.conf"; \
+    echo "max_connections = 20"        >> "$PGDATA/postgresql.conf"; \
+    \
+    # --- 6. stop and clean up (keep /seed.sql for root to delete below) ---
     pg_ctl -D "$PGDATA" stop -m fast; \
     rm -f /tmp/pg_build.log "$PGDATA/postmaster.pid"
 
