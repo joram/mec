@@ -62,7 +62,7 @@ export default function LoginPage() {
     >
       <Paper sx={{ p: { xs: 3, sm: 4 }, maxWidth: 420, width: "100%", borderRadius: 2 }} elevation={2}>
         <Typography variant="h5" fontWeight={700} textAlign="center" gutterBottom>
-          MEC Account
+          GOS Account
         </Typography>
 
         <Tabs value={tab} onChange={(_, v) => { setTab(v); setError(""); }} variant="fullWidth" sx={{ mb: 3 }}>
@@ -137,7 +137,7 @@ export default function LoginPage() {
 
         <Divider sx={{ my: 3 }} />
         <Typography variant="caption" color="text.secondary" textAlign="center" display="block">
-          By signing in you agree to MEC's terms of service.
+          By signing in you agree to GOS's terms of service.
         </Typography>
       </Paper>
     </Box>

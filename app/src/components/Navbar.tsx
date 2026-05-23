@@ -119,7 +119,7 @@ export default function Navbar() {
             whiteSpace: "nowrap",
           }}
         >
-          MEC
+          GOS
         </Typography>
 
         <form onSubmit={handleSearch} style={{ flexGrow: 1, maxWidth: 480, marginLeft: 16 }}>
@@ -207,7 +207,7 @@ export default function Navbar() {
       <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
         <Box sx={{ width: 240, pt: 2 }}>
           <Typography variant="h6" sx={{ px: 2, pb: 1, fontWeight: 800, color: "primary.main" }}>
-            MEC
+            GOS
           </Typography>
           <MenuItem onClick={() => { navigate("/"); setDrawerOpen(false); }}>Shop All</MenuItem>
           <MenuItem onClick={() => { navigate("/cart"); setDrawerOpen(false); }}>Cart ({cartCount})</MenuItem>

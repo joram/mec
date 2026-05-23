@@ -53,14 +53,14 @@ export default function App() {
         <Box sx={{ maxWidth: 1200, mx: "auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
           <Box>
             <Box component="span" sx={{ fontWeight: 800, fontSize: "1.1rem", letterSpacing: "0.04em" }}>
-              MEC
+              GOS
             </Box>
             <Box sx={{ fontSize: "0.8rem", opacity: 0.75, mt: 0.5 }}>
-              My Equipment Closet
+              Generic Outdoor Store
             </Box>
           </Box>
           <Box sx={{ fontSize: "0.8rem", opacity: 0.7 }}>
-            © {new Date().getFullYear()} My Equipment Closet
+            © {new Date().getFullYear()} Generic Outdoor Store
           </Box>
         </Box>
       </Box>

@@ -69,8 +69,8 @@ export default function InvoicePage() {
         <Box sx={{ p: 3, bgcolor: "primary.main", color: "primary.contrastText" }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <Box>
-              <Typography variant="h5" fontWeight={800} letterSpacing="0.04em">MEC</Typography>
-              <Typography variant="caption" sx={{ opacity: 0.8 }}>My Equipment Closet</Typography>
+              <Typography variant="h5" fontWeight={800} letterSpacing="0.04em">GOS</Typography>
+              <Typography variant="caption" sx={{ opacity: 0.8 }}>Generic Outdoor Store</Typography>
             </Box>
             <Box sx={{ textAlign: "right" }}>
               <Typography variant="h6" fontWeight={700}>Invoice</Typography>
