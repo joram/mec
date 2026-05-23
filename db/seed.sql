@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict hxKMAu7oYt9hV43r1YSNlsdftEyJuMeI6ED80YBhCoSlRzwoyIKgBTQVcPaqCaA
+\restrict AxjVV4jygBJoktiUOwyNbdOPSdqIDhPQ5lIZP6vGc5eSfOMmzKLZwA6VBY8v5A8
 
 -- Dumped from database version 16.13
 -- Dumped by pg_dump version 16.13
@@ -1136,6 +1136,7 @@ ef28c62b-255a-4dfb-b408-a75aa6950820	5028-866	Nuun Sport Electrolyte Replacement
 COPY public.users (id, username, email, hashed_password, is_active, created_at) FROM stdin;
 d9f8760b-591f-4ae0-b88a-caf5a83cd1b4	joram	john@veilstream.com	$2b$12$SoIf1uiX6jQlSv4E42vnFeyRJR770xRbfv9lBNXDl1XdOK9X0Mj3q	t	2026-05-20 21:51:51.40476
 eb89334e-80ed-44d3-91bb-436ec764179a	testuser	test@example.com	$2b$12$TVMqJSM5f017ILW4pZyX3.Wf8LGyifiWPLZXZtGOgQcv35PbxW/sm	t	2026-05-20 21:51:59.101435
+90522a88-f752-49bd-b368-d1389ddf7d0f	testuser_1779490483854	test_1779490483854@example.com	$2b$12$VuhUhyOAsPaWtH6wQ5AL/O8Xi9sWvBt7/HpoaXvMv7bAI1dTPsiEW	t	2026-05-22 22:54:46.096957
 \.
 
 
@@ -1260,7 +1261,7 @@ ALTER TABLE ONLY public.item_images
 -- PostgreSQL database dump complete
 --
 
-\unrestrict hxKMAu7oYt9hV43r1YSNlsdftEyJuMeI6ED80YBhCoSlRzwoyIKgBTQVcPaqCaA
+\unrestrict AxjVV4jygBJoktiUOwyNbdOPSdqIDhPQ5lIZP6vGc5eSfOMmzKLZwA6VBY8v5A8
 
 
 -- item_images metadata: blobs are NULL and lazy-loaded on first image request
