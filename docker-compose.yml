@@ -16,6 +16,20 @@ services:
       timeout: 5s
       retries: 10
 
+  db-seed:
+    image: postgres:16-alpine
+    # Idempotent: checks item count and re-seeds only when the catalogue is
+    # missing or sparse (e.g. fresh Veilstream environments, wiped volumes).
+    entrypoint: ["sh", "/auto_seed.sh"]
+    volumes:
+      - ./db/auto_seed.sh:/auto_seed.sh:ro
+      - ./db/items_seed.sql:/items_seed.sql:ro
+    environment:
+      DATABASE_URL: postgresql://mec:mec@db:5432/mec
+    depends_on:
+      db:
+        condition: service_healthy
+
   api:
     build: ./api
     environment:
@@ -26,6 +40,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      db-seed:
+        condition: service_completed_successfully
     volumes:
       - ./api:/app
 
