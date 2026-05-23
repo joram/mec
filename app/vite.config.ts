@@ -2,9 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  define: {
-    "import.meta.env.VITE_API_URL": JSON.stringify(process.env.VITE_API_URL),
-  },
   plugins: [react()],
   server: {
     host: "0.0.0.0",
@@ -12,7 +9,10 @@ export default defineConfig({
     allowedHosts: [".env.veilstreamapp.com", ".env.veilstreamdev.com"],
     proxy: {
       "/api": {
-        target: process.env.VITE_API_URL || "http://localhost:8000",
+        // API_PROXY_TARGET is a server-side-only variable — it is never baked into
+        // the browser bundle, so the frontend always uses the relative /api path
+        // and the Vite dev-server proxy handles routing to the API container.
+        target: process.env.API_PROXY_TARGET || "http://localhost:8000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
