@@ -161,29 +161,7 @@ def get_image(item_id: UUID, image_id: UUID, db: Session = Depends(get_db)):
     if not source_url:
         raise HTTPException(status_code=404, detail="Image not found")
 
-    # Lazy-fetch from CDN and persist so subsequent requests are instant.
-    try:
-        import httpx
-        r = httpx.get(source_url, follow_redirects=True, timeout=15)
-        r.raise_for_status()
-        blob = r.content
-        content_type = r.headers.get("content-type", "image/jpeg").split(";")[0]
-    except Exception:
-        raise HTTPException(status_code=502, detail="Failed to fetch image from CDN")
-
-    if image:
-        image.data = blob
-        image.content_type = content_type
-    else:
-        db.add(models.ItemImage(
-            id=image_id,
-            item_id=item_id,
-            url=source_url,
-            data=blob,
-            content_type=content_type,
-            is_primary=True,
-            sort_order=0,
-        ))
-    db.commit()
-
-    return Response(content=blob, media_type=content_type)
+    # Redirect to CDN directly — avoids blocking API worker threads on slow CDN
+    # fetches. The browser loads the image from CDN without tying up the API.
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url=source_url, status_code=302)
