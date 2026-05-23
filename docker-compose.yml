@@ -1,16 +1,10 @@
 services:
   db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: mec
-      POSTGRES_USER: mec
-      POSTGRES_PASSWORD: mec
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      # seed.sql is loaded by the db-seed service (handles both fresh and
-      # existing volumes); kept here only as a last-resort fallback for
-      # truly empty volumes in environments that don't run db-seed.
-      - ./db/seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+    build:
+      context: ./db
+      dockerfile: Dockerfile.db
+    # No named volume — the seeded cluster lives inside the image layer.
+    # Every fresh container starts with the full 879-item catalogue instantly.
     ports:
       - "5432:5432"
     healthcheck:
@@ -18,21 +12,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-
-  db-seed:
-    image: postgres:16-alpine
-    # Idempotent: checks item count and re-seeds only when the catalogue is
-    # missing or sparse (e.g. fresh Veilstream environments, wiped volumes).
-    entrypoint: ["sh", "/auto_seed.sh"]
-    volumes:
-      - ./db/auto_seed.sh:/auto_seed.sh:ro
-      - ./db/seed.sql:/seed.sql:ro
-      - ./db/items_seed.sql:/items_seed.sql:ro
-    environment:
-      DATABASE_URL: postgresql://mec:mec@db:5432/mec
-    depends_on:
-      db:
-        condition: service_healthy
 
   api:
     build: ./api
@@ -68,5 +47,3 @@ services:
     depends_on:
       - api
 
-volumes:
-  pgdata:

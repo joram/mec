@@ -1,0 +1,53 @@
+FROM postgres:16-alpine
+
+# Set PGDATA to a path that is NOT the base image's declared VOLUME
+# (/var/lib/postgresql/data). Docker excludes volume-mount-points from
+# image layers, so any writes there during RUN are silently discarded.
+# Using /pgdata keeps the seeded cluster inside the image layer.
+ENV PGDATA=/pgdata \
+    POSTGRES_USER=mec \
+    POSTGRES_PASSWORD=mec \
+    POSTGRES_DB=mec
+
+COPY seed.sql /seed.sql
+
+# Pre-create the data directory with postgres ownership (must be done as root).
+RUN mkdir -p "$PGDATA" && chown postgres:postgres "$PGDATA"
+
+# Switch to the postgres user for all cluster operations so that file
+# ownership is correct and we avoid needing gosu/su-exec during build.
+USER postgres
+
+RUN set -eux; \
+    \
+    # --- 1. initialise the cluster ----------------------------------------
+    initdb \
+      --username="$POSTGRES_USER" \
+      --auth=trust \
+      --encoding=UTF8 \
+      --locale=C \
+      "$PGDATA"; \
+    \
+    # --- 2. start a temporary server (Unix socket only, no network) --------
+    pg_ctl -D "$PGDATA" start \
+      -l /tmp/pg_build.log \
+      -o "-c listen_addresses=''"; \
+    \
+    # --- 3. wait until ready ----------------------------------------------
+    until pg_isready -U "$POSTGRES_USER"; do sleep 1; done; \
+    \
+    # --- 4. create the application database and seed ----------------------
+    createdb -U "$POSTGRES_USER" "$POSTGRES_DB"; \
+    psql  -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f /seed.sql; \
+    \
+    # --- 5. stop and clean up (keep /seed.sql for root to delete below) ---
+    pg_ctl -D "$PGDATA" stop -m fast; \
+    rm -f /tmp/pg_build.log "$PGDATA/postmaster.pid"
+
+# Back to root so the default entrypoint can do its privilege-drop dance,
+# and so we can clean up the root-owned seed file.
+USER root
+RUN rm -f /seed.sql
+
+HEALTHCHECK --interval=5s --timeout=5s --retries=10 \
+  CMD pg_isready -U mec -d mec
