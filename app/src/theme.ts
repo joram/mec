@@ -1,20 +1,20 @@
 import { createTheme } from "@mui/material/styles";
 
-const MEC_GREEN = "#1a5c38";
-const MEC_GREEN_DARK = "#0f3d24";
-const MEC_GREEN_LIGHT = "#e8f4ee";
-const MEC_ORANGE = "#e05a14";
+const GOS_BLUE = "#1e3a5f";
+const GOS_BLUE_DARK = "#0f2140";
+const GOS_BLUE_LIGHT = "#e8f0f9";
+const GOS_AMBER = "#d4861a";
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: MEC_GREEN,
-      dark: MEC_GREEN_DARK,
-      light: MEC_GREEN_LIGHT,
+      main: GOS_BLUE,
+      dark: GOS_BLUE_DARK,
+      light: GOS_BLUE_LIGHT,
       contrastText: "#ffffff",
     },
     secondary: {
-      main: MEC_ORANGE,
+      main: GOS_AMBER,
       contrastText: "#ffffff",
     },
     background: {
@@ -46,15 +46,15 @@ const theme = createTheme({
           fontSize: "0.9375rem",
         },
         containedPrimary: {
-          backgroundColor: MEC_GREEN,
-          "&:hover": { backgroundColor: MEC_GREEN_DARK },
+          backgroundColor: GOS_BLUE,
+          "&:hover": { backgroundColor: GOS_BLUE_DARK },
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: MEC_GREEN,
+          backgroundColor: GOS_BLUE,
           boxShadow: "none",
           borderBottom: "1px solid rgba(255,255,255,0.12)",
         },

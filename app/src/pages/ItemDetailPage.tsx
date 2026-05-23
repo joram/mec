@@ -291,7 +291,7 @@ export default function ItemDetailPage() {
           {item.source_url && (
             <Typography variant="caption" display="block" mt={2}>
               <Link href={item.source_url} target="_blank" rel="noopener" color="text.secondary">
-                View on MEC.ca
+                View source
               </Link>
             </Typography>
           )}
