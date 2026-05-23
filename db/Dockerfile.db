@@ -27,6 +27,10 @@ RUN set -eux; \
       --encoding=UTF8 \
       --locale=C \
       "$PGDATA"; \
+    # Allow TCP connections from any host (covers Docker bridge/overlay subnets).
+    # initdb --auth=trust only covers local Unix-socket connections; remote
+    # containers connect over TCP and need an explicit host entry.
+    echo "host all all 0.0.0.0/0 trust" >> "$PGDATA/pg_hba.conf"; \
     \
     # --- 2. start a temporary server (Unix socket only, no network) --------
     pg_ctl -D "$PGDATA" start \
